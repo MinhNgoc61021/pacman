@@ -18,6 +18,13 @@ Pacman agents (in searchAgents.py).
 """
 
 import util
+import enum
+from game import Directions
+
+s = Directions.SOUTH
+w = Directions.WEST
+e = Directions.EAST
+n = Directions.NORTH
 
 class SearchProblem:
     """
@@ -72,7 +79,22 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
+
 def depthFirstSearch(problem):
+    import util
+
+    def depthFirstSearchUtils(problem, action_list, visited, stack, state, direction, actions):
+        visited.append(state)
+        actions.append(direction)
+        if problem.isGoalState(state):
+            action_list.append([action for action in actions if action != ''])
+        else:
+            for successor, direction, cost in problem.getSuccessors(state):
+                if successor not in visited:
+                    depthFirstSearchUtils(problem, action_list, visited, stack, successor, direction, actions)
+
+        actions.pop()
+        visited.remove(state)
     """
     Search the deepest nodes in the search tree first.
 
@@ -87,12 +109,24 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    stack = util.Stack()
+    state = problem.getStartState()
+    actions_list = []
+
+    depthFirstSearchUtils(problem, actions_list, [], stack, state, "", [])
+
+    action_cost = {}
+    for index, action in enumerate(actions_list):
+        action_cost[index] = problem.getCostOfActions(action)
+    min_index = min(action_cost, key=action_cost.get)
+    return actions_list[min_index]
+
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
     util.raiseNotDefined()
+
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
