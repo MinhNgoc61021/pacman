@@ -83,18 +83,18 @@ def tinyMazeSearch(problem):
 def depthFirstSearch(problem):
     import util
 
-    def depthFirstSearchUtils(problem, action_list, visited, stack, state, direction, actions):
-        visited.append(state)
+    def depthFirstSearchUtils(problem, action_list, visited_list, stack, state, direction, actions):
+        visited_list.append(state)
         actions.append(direction)
         if problem.isGoalState(state):
             action_list.append([action for action in actions if action != ''])
         else:
             for successor, direction, cost in problem.getSuccessors(state):
-                if successor not in visited:
-                    depthFirstSearchUtils(problem, action_list, visited, stack, successor, direction, actions)
+                if successor not in visited_list:
+                    depthFirstSearchUtils(problem, action_list, visited_list, stack, successor, direction, actions)
 
         actions.pop()
-        visited.remove(state)
+        visited_list.remove(state)
     """
     Search the deepest nodes in the search tree first.
 
@@ -104,28 +104,63 @@ def depthFirstSearch(problem):
     To get started, you might want to try some of these simple commands to
     understand the search problem that is being passed in:
 
+    
+    """
+    "*** YOUR CODE HERE ***"
     print("Start:", problem.getStartState())
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
-    """
-    "*** YOUR CODE HERE ***"
     stack = util.Stack()
-    state = problem.getStartState()
-    actions_list = []
+    init_state = problem.getStartState()
+    action_list = []
 
-    depthFirstSearchUtils(problem, actions_list, [], stack, state, "", [])
+    depthFirstSearchUtils(problem, action_list, [], stack, init_state, "", [])
 
+    print(action_list)
     action_cost = {}
-    for index, action in enumerate(actions_list):
+    for index, action in enumerate(action_list):
         action_cost[index] = problem.getCostOfActions(action)
     min_index = min(action_cost, key=action_cost.get)
-    return actions_list[min_index]
+    return action_list[min_index]
 
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    import util
+
+    def breadthFirstSearchUtils(problem, action_list, visited_list, queue, current_state, direction, actions):
+        if queue.isEmpty():
+            visited_list.add(current_state)
+            queue.push(current_state)
+            actions.append(direction)
+
+        while queue.isEmpty() is not True:
+            state = queue.pop()
+            if problem.isGoalState(state):
+                action_list.append([action for action in actions if action != ''])
+            else:
+                for successor, direction, cost in problem.getSuccessors(state):
+                    if (successor not in visited_list) and (successor not in queue.list):
+                        breadthFirstSearchUtils(problem, action_list, visited_list, queue, successor, direction , actions)
+        actions.pop()
+    print("Start:", problem.getStartState())
+    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    print("Start's successors:", problem.getSuccessors(problem.getStartState())) # [(successor, action, stepCost), ...]
+
+    queue = util.Queue()
+    init_state = problem.getStartState()
+    action_list = []
+    visited_list = set()
+
+    breadthFirstSearchUtils(problem, action_list, visited_list, queue, init_state, '', [])
+
+    # print(action_list)
+    action_cost = {}
+    for index, action in enumerate(action_list):
+        action_cost[index] = problem.getCostOfActions(action)
+    min_index = min(action_cost, key=action_cost.get)
+    return action_list[min_index]
 
 
 def uniformCostSearch(problem):
