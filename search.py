@@ -129,11 +129,10 @@ def breadthFirstSearch(problem):
     "*** YOUR CODE HERE ***"
     import util
 
-    def breadthFirstSearchUtils(problem, action_list, visited_list, queue, current_state, direction, actions):
-        if queue.isEmpty():
-            visited_list.add(current_state)
-            queue.push(current_state)
-            actions.append(direction)
+    def breadthFirstSearchUtils(problem, action_list, visited_list, queue, current_state, direction, actions, path_cost):
+        visited_list.add(current_state)
+        queue.push(current_state)
+        actions.append(direction)
 
         while queue.isEmpty() is not True:
             state = queue.pop()
@@ -142,8 +141,11 @@ def breadthFirstSearch(problem):
             else:
                 for successor, direction, cost in problem.getSuccessors(state):
                     if (successor not in visited_list) and (successor not in queue.list):
-                        breadthFirstSearchUtils(problem, action_list, visited_list, queue, successor, direction , actions)
+                        path_cost += cost
+                        if cost != 0 and cost <= path_cost:
+                            breadthFirstSearchUtils(problem, action_list, visited_list, queue, successor, direction , actions, cost)
         actions.pop()
+
     print("Start:", problem.getStartState())
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState())) # [(successor, action, stepCost), ...]
@@ -152,8 +154,9 @@ def breadthFirstSearch(problem):
     init_state = problem.getStartState()
     action_list = []
     visited_list = set()
+    cost = 0
 
-    breadthFirstSearchUtils(problem, action_list, visited_list, queue, init_state, '', [])
+    breadthFirstSearchUtils(problem, action_list, visited_list, queue, init_state, '', [], cost)
 
     # print(action_list)
     action_cost = {}
