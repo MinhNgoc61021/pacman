@@ -128,43 +128,39 @@ def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
     import util
+    queue = util.Queue()
+    init_state = problem.getStartState()
+    action_list = []
+    queue.push((init_state, action_list))
+    visited_list = []
 
-    def breadthFirstSearchUtils(problem, action_list, visited_list, queue, current_state, direction, actions, path_cost):
-        visited_list.add(current_state)
-        queue.push(current_state)
-        actions.append(direction)
-
+    def breadthFirstSearchUtils(problem, visited_list, queue):
         while queue.isEmpty() is not True:
-            state = queue.pop()
+            state, action_list = queue.pop()
+            visited_list.append(state)
+
             if problem.isGoalState(state):
-                action_list.append([action for action in actions if action != ''])
-            else:
-                for successor, direction, cost in problem.getSuccessors(state):
-                    if (successor not in visited_list) and (successor not in queue.list):
-                        path_cost += cost
-                        if cost != 0 and cost <= path_cost:
-                            breadthFirstSearchUtils(problem, action_list, visited_list, queue, successor, direction , actions, cost)
-        actions.pop()
+                return action_list
+
+            successors = problem.getSuccessors(state)
+            for (successor, direction, cost) in successors:
+                if (successor not in visited_list) and (successor not in (state for state in queue.list)):
+                    if problem.isGoalState(state):
+                        return action_list + [direction]
+                    else:
+                        new_action_list = action_list + [direction]
+                        queue.push((successor, new_action_list))
 
     print("Start:", problem.getStartState())
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState())) # [(successor, action, stepCost), ...]
 
-    queue = util.Queue()
-    init_state = problem.getStartState()
-    action_list = []
-    visited_list = set()
-    cost = 0
-
-    breadthFirstSearchUtils(problem, action_list, visited_list, queue, init_state, '', [], cost)
+    if problem.isGoalState(init_state):
+        return []
+    else:
+        return breadthFirstSearchUtils(problem, visited_list, queue)
 
     # print(action_list)
-    action_cost = {}
-    for index, action in enumerate(action_list):
-        action_cost[index] = problem.getCostOfActions(action)
-    min_index = min(action_cost, key=action_cost.get)
-    return action_list[min_index]
-
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
