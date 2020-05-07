@@ -116,7 +116,6 @@ def depthFirstSearch(problem):
 
     depthFirstSearchUtils(problem, action_list, [], stack, init_state, "", [])
 
-    print(action_list)
     action_cost = {}
     for index, action in enumerate(action_list):
         action_cost[index] = problem.getCostOfActions(action)
@@ -139,33 +138,76 @@ def breadthFirstSearch(problem):
             state, action_list = queue.pop()
             visited_list.append(state)
 
-            if problem.isGoalState(state):
-                return action_list
-
             successors = problem.getSuccessors(state)
             for (successor, direction, cost) in successors:
-                if (successor not in visited_list) and (successor not in (state for state in queue.list)):
-                    if problem.isGoalState(state):
+                if (successor not in visited_list) and (successor not in (item for item in queue.list)):
+                    if problem.isGoalState(successor):
                         return action_list + [direction]
-                    else:
-                        new_action_list = action_list + [direction]
-                        queue.push((successor, new_action_list))
+                    new_action_list = action_list + [direction]
+                    queue.push((successor, new_action_list))
 
     print("Start:", problem.getStartState())
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState())) # [(successor, action, stepCost), ...]
 
-    if problem.isGoalState(init_state):
-        return []
-    else:
-        return breadthFirstSearchUtils(problem, visited_list, queue)
+    action_list = breadthFirstSearchUtils(problem, visited_list, queue)
+    return action_list
 
     # print(action_list)
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    import util
+    priQueue = util.PriorityQueue()
+    init_state = problem.getStartState()
+    action_list = []
+    priQueue.push((init_state, action_list), 0)
+    visited_list = []
+
+    def uniformCostSearchUtils(problem, visited_list, priQueue):
+        while priQueue.isEmpty() is not True:
+            state, action_list = priQueue.pop()
+            visited_list.append(state)
+
+            if problem.isGoalState(state):
+                return action_list
+
+            # for item in priQueue.heap:
+            #     print(item)
+
+            successors = problem.getSuccessors(state)
+            heap = priQueue.heap # get heap tree
+
+            for (successor, direction, cost) in successors:
+                if (successor not in visited_list) and (successor not in (item[2][0] for item in heap)): # if the successor has yet to be in the Heap tree
+                    if problem.isGoalState(successor):
+                        return action_list + [direction]
+                    new_action_list = action_list + [direction]
+                    newPriority = problem.getCostOfActions(new_action_list)
+                    priQueue.push((successor, new_action_list), newPriority)
+
+                elif (successor not in visited_list) and (successor in (item[2][0] for item in heap)): # if the successor has been in the Heap tree
+                    currentPriority = None
+                    for item in heap:
+                        if successor == item[2][0]:
+                            # print(item[2][0])
+                            # print(successor)
+                            currentPriority = problem.getCostOfActions(item[2][1])
+
+                    new_action_list = action_list + [direction]
+                    newPriority = problem.getCostOfActions(new_action_list)
+                    if newPriority < currentPriority:
+                        priQueue.update((successor, new_action_list), newPriority)
+                    else:
+                        continue
+
+    print("Start:", problem.getStartState())
+    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    print("Start's successors:", problem.getSuccessors(problem.getStartState()))  # [(successor, action, stepCost), ...]
+
+    action_list = uniformCostSearchUtils(problem, visited_list, priQueue)
+    return action_list
 
 def nullHeuristic(state, problem=None):
     """
