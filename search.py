@@ -159,35 +159,35 @@ def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
     import util
-    priQueue = util.PriorityQueue()
+    frontier = util.PriorityQueue()
     init_state = problem.getStartState()
     action_list = []
-    priQueue.push((init_state, action_list), 0)
+    frontier.push((init_state, action_list), 0)
     visited_list = []
 
-    def uniformCostSearchUtils(problem, visited_list, priQueue):
-        while priQueue.isEmpty() is not True:
-            state, action_list = priQueue.pop()
+    def uniformCostSearchUtils(problem, visited_list, frontier):
+        while frontier.isEmpty() is not True:
+            state, action_list = frontier.pop()
             visited_list.append(state)
 
             if problem.isGoalState(state):
                 return action_list
 
-            # for item in priQueue.heap:
+            # for item in frontier.heap:
             #     print(item)
 
             successors = problem.getSuccessors(state)
-            heap = priQueue.heap # get heap tree
+            heap = frontier.heap # get heap tree
 
             for (successor, direction, cost) in successors:
-                if (successor not in visited_list) and (successor not in (item[2][0] for item in heap)): # if the successor has yet to be in the Heap tree
+                if (successor not in visited_list) and (successor not in (item[2][0] for item in heap)): # if the successor has yet to be in the frontier
                     if problem.isGoalState(successor):
                         return action_list + [direction]
                     new_action_list = action_list + [direction]
                     newPriority = problem.getCostOfActions(new_action_list)
-                    priQueue.push((successor, new_action_list), newPriority)
+                    frontier.push((successor, new_action_list), newPriority)
 
-                elif (successor not in visited_list) and (successor in (item[2][0] for item in heap)): # if the successor has been in the Heap tree
+                elif (successor not in visited_list) and (successor in (item[2][0] for item in heap)): # if the successor has been in the frontier
                     currentPriority = None
                     for item in heap:
                         if successor == item[2][0]:
@@ -198,7 +198,7 @@ def uniformCostSearch(problem):
                     new_action_list = action_list + [direction]
                     newPriority = problem.getCostOfActions(new_action_list)
                     if newPriority < currentPriority:
-                        priQueue.update((successor, new_action_list), newPriority)
+                        frontier.update((successor, new_action_list), newPriority)
                     else:
                         continue
 
@@ -206,7 +206,7 @@ def uniformCostSearch(problem):
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))  # [(successor, action, stepCost), ...]
 
-    action_list = uniformCostSearchUtils(problem, visited_list, priQueue)
+    action_list = uniformCostSearchUtils(problem, visited_list, frontier)
     return action_list
 
 def nullHeuristic(state, problem=None):
