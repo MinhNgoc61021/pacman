@@ -6,7 +6,7 @@
 
 - search.py	- **Where all of your search algorithms will reside.**
 - searchAgents.py - **Where all of your search-based agents will reside.**
-*Side Point: In searchAgents.py, you’ll find a fully implemented SearchAgent, which plans out a path through Pacman’s world and then executes that path step-by-step. The search algorithms for formulating a plan are not implemented – that’s your job.
+***Side Point**: In searchAgents.py, you’ll find a fully implemented SearchAgent, which plans out a path through Pacman’s world and then executes that path step-by-step. The search algorithms for formulating a plan are not implemented – that’s your job.
 
 ### Files you might want to look at:
 - pacman.py	- **The main file that runs Pacman games. This file describes a Pacman GameState type, which you use in this project.**
