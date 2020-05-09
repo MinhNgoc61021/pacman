@@ -143,6 +143,7 @@ def breadthFirstSearch(problem):
                 if (successor not in visited_list) and (successor not in (item for item in queue.list)):
                     if problem.isGoalState(successor):
                         return action_list + [direction]
+        
                     new_action_list = action_list + [direction]
                     queue.push((successor, new_action_list))
 
@@ -170,8 +171,8 @@ def uniformCostSearch(problem):
             state, action_list = frontier.pop()
             visited_list.append(state)
 
-            if problem.isGoalState(state):
-                return action_list
+            # if problem.isGoalState(state):
+            #     return action_list
 
             # for item in frontier.heap:
             #     print(item)
@@ -183,6 +184,7 @@ def uniformCostSearch(problem):
                 if (successor not in visited_list) and (successor not in (item[2][0] for item in heap)): # if the successor has yet to be in the frontier
                     if problem.isGoalState(successor):
                         return action_list + [direction]
+
                     new_action_list = action_list + [direction]
                     newPriority = problem.getCostOfActions(new_action_list)
                     frontier.push((successor, new_action_list), newPriority)
