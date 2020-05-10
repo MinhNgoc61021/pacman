@@ -26,6 +26,7 @@ w = Directions.WEST
 e = Directions.EAST
 n = Directions.NORTH
 
+
 class SearchProblem:
     """
     This class outlines the structure of a search problem, but doesn't implement
@@ -77,24 +78,32 @@ def tinyMazeSearch(problem):
     from game import Directions
     s = Directions.SOUTH
     w = Directions.WEST
-    return  [s, s, w, s, w, w, s, w]
+    return [s, s, w, s, w, w, s, w]
 
 
 def depthFirstSearch(problem):
     import util
 
-    def depthFirstSearchUtils(problem, action_list, visited, stack, state, direction, actions):
-        visited.append(state)
+    stack = util.Stack()
+    init_state = problem.getStartState()
+    action_list = []
+    stack.push(init_state)
+
+    visited = []
+
+    def depthFirstSearchUtils(problem, action_list, visited_list, stack, state, direction, actions):
+        visited_list.append(state)
         actions.append(direction)
         if problem.isGoalState(state):
             action_list.append([action for action in actions if action != ''])
         else:
             for successor, direction, cost in problem.getSuccessors(state):
-                if successor not in visited:
-                    depthFirstSearchUtils(problem, action_list, visited, stack, successor, direction, actions)
+                if successor not in visited_list:
+                    depthFirstSearchUtils(problem, action_list, visited_list, stack, successor, direction, actions)
 
         actions.pop()
-        visited.remove(state)
+        visited_list.remove(state)
+
     """
     Search the deepest nodes in the search tree first.
 
@@ -104,28 +113,60 @@ def depthFirstSearch(problem):
     To get started, you might want to try some of these simple commands to
     understand the search problem that is being passed in:
 
+
+    """
+    "*** YOUR CODE HERE ***"
     print("Start:", problem.getStartState())
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
-    """
-    "*** YOUR CODE HERE ***"
-    stack = util.Stack()
-    state = problem.getStartState()
-    actions_list = []
 
-    depthFirstSearchUtils(problem, actions_list, [], stack, state, "", [])
+    depthFirstSearchUtils(problem, action_list, [], stack, init_state, "", [])
 
+    print(action_list)
     action_cost = {}
-    for index, action in enumerate(actions_list):
+    for index, action in enumerate(action_list):
         action_cost[index] = problem.getCostOfActions(action)
     min_index = min(action_cost, key=action_cost.get)
-    return actions_list[min_index]
+    return action_list[min_index]
 
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    import util
+    queue = util.Queue()
+    init_state = problem.getStartState()
+    action_list = []
+    queue.push((init_state, action_list))
+    visited_list = []
+
+    def breadthFirstSearchUtils(problem, visited_list, queue):
+        while queue.isEmpty() is not True:
+            state, action_list = queue.pop()
+            visited_list.append(state)
+
+            if problem.isGoalState(state):
+                return action_list
+
+            successors = problem.getSuccessors(state)
+            for (successor, direction, cost) in successors:
+                if (successor not in visited_list) and (successor not in (state for state in queue.list)):
+                    if problem.isGoalState(state):
+                        return action_list + [direction]
+                    else:
+                        new_action_list = action_list + [direction]
+                        queue.push((successor, new_action_list))
+
+    print("Start:", problem.getStartState())
+    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    print("Start's successors:", problem.getSuccessors(problem.getStartState()))  # [(successor, action, stepCost), ...]
+
+    if problem.isGoalState(init_state):
+        return []
+    else:
+        return breadthFirstSearchUtils(problem, visited_list, queue)
+
+    # print(action_list)
 
 
 def uniformCostSearch(problem):
@@ -133,17 +174,94 @@ def uniformCostSearch(problem):
     "*** YOUR CODE HERE ***"
     util.raiseNotDefined()
 
+
 def nullHeuristic(state, problem=None):
     """
     A heuristic function estimates the cost from the current state to the nearest
     goal in the provided SearchProblem.  This heuristic is trivial.
     """
     return 0
+class Node:
+    def __init__(self, parent, position, action, cost, g, h, f):
+        self.parent = parent
+        self.position = position
+        self.action = action
+        self.cost = cost
+
+        self.g = g
+        self.h = h
+        self.f = f
+
+    def __str__(self):
+        return self.action
 
 def aStarSearch(problem, heuristic=nullHeuristic):
+    def in_close_list(item, list):
+        for l in list:
+            if item.position == l.position:
+                return True
+        return False
+
+    def in_open_list(item, list):
+        for l in list:
+            if item.position == l.position and l.f <= item.f:
+                return True
+        return False
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    init_state = Node(None, problem.getStartState(), None, 0, 0, 0, 0)  # parent, position, action, g, h, f
+    open_list = []
+    close_list = []
+
+    open_list.append(init_state)
+    while len(open_list) > 0:
+        #print("open_list f:", ["g{}+h{}=f{}/{}/{}".format(node.g, node.h, node.f, node.action, node.position) for node in open_list])
+        current_node = open_list[0]
+        current_index = 0
+        for index, node in enumerate(open_list):
+            if node.f < current_node.f:
+                current_node = node
+                current_index = index
+        #print("current_index:", current_index, "//smallest f:","g{}+h{}=f{}/{}/{}".format(current_node.g,current_node.h,current_node.f,current_node.action,current_node.position))
+        #print("current(min) node:", "g{}+h{}=f{}/{}/{}".format(current_node.g,current_node.h,current_node.f,current_node.action,current_node.position))
+
+        open_list.pop(current_index)
+        close_list.append(current_node)
+
+        #print("close_list f:", ["g{}+h{}=f{}/{}/{}".format(node.g,node.h,node.f,node.action,node.position) for node in close_list])
+        if problem.isGoalState(current_node.position):
+            action_list = []
+            current = current_node
+            while current is not None:
+                action_list.append(current.action)
+                #print("acion: ", action_list)
+                #print("g{}+h{}=f{}/{}/{}".format(current.g, current.h, current.f, current.action, current.position))
+                current = current.parent
+            return action_list[::-1][1:] #remove node with None as action (start node)
+
+        children = []
+
+        for child in problem.getSuccessors(current_node.position):
+            children.append(Node(parent=current_node,
+                                 position=child[0],
+                                 cost=child[2],
+                                 action=child[1],
+                                 g=0, h=0, f=0))
+
+
+        #print("children:", ["g{}+h{}=f{}/{}/{}".format(child.g,child.h,child.f,child.action,child.position) for child in children])
+
+        #print("CHILDREN LOOP")
+        for index, child in enumerate(children):
+            if not in_close_list(child, close_list):
+                child.g = current_node.g + child.cost
+                child.h = heuristic(child.position, problem)
+                child.f = child.g + child.h
+                #print("update child no.{}: g{}+h{}=f{}/{}/{}".format(index, child.g, child.h, child.f, child.action, child.position))
+                if not in_open_list(child, open_list):
+                    #print("append child no.{} to open_list".format(index))
+                    open_list.append(child)
 
 
 # Abbreviations
