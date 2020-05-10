@@ -120,7 +120,7 @@ def breadthFirstSearch(problem):
     visited_list = []
     visited_list.append(init_state)
 
-    def depthFirstSearchUtils(problem, visited_list, queue):
+    def breadthFirstSearchUtils(problem, visited_list, queue):
         while queue.isEmpty() is not True:
             state, action_list = queue.pop()
 
@@ -137,7 +137,7 @@ def breadthFirstSearch(problem):
     if problem.isGoalState(init_state):
         return []
     else:
-        return depthFirstSearchUtils(problem, visited_list, queue)
+        return breadthFirstSearchUtils(problem, visited_list, queue)
 
     # print(action_list)
 
