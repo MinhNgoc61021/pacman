@@ -83,18 +83,18 @@ def tinyMazeSearch(problem):
 def depthFirstSearch(problem):
     import util
 
-    def depthFirstSearchUtils(problem, action_list, visited, stack, state, direction, actions):
-        visited.append(state)
+    def depthFirstSearchUtils(problem, action_list, visited_list, stack, state, direction, actions):
+        visited_list.append(state)
         actions.append(direction)
         if problem.isGoalState(state):
             action_list.append([action for action in actions if action != ''])
         else:
             for successor, direction, cost in problem.getSuccessors(state):
-                if successor not in visited:
-                    depthFirstSearchUtils(problem, action_list, visited, stack, successor, direction, actions)
+                if successor not in visited_list:
+                    depthFirstSearchUtils(problem, action_list, visited_list, stack, successor, direction, actions)
 
         actions.pop()
-        visited.remove(state)
+        visited_list.remove(state)
     """
     Search the deepest nodes in the search tree first.
 
@@ -104,34 +104,112 @@ def depthFirstSearch(problem):
     To get started, you might want to try some of these simple commands to
     understand the search problem that is being passed in:
 
+    
+    """
+    "*** YOUR CODE HERE ***"
     print("Start:", problem.getStartState())
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
-    """
-    "*** YOUR CODE HERE ***"
     stack = util.Stack()
-    state = problem.getStartState()
-    actions_list = []
+    init_state = problem.getStartState()
+    action_list = []
 
-    depthFirstSearchUtils(problem, actions_list, [], stack, state, "", [])
+    depthFirstSearchUtils(problem, action_list, [], stack, init_state, "", [])
 
     action_cost = {}
-    for index, action in enumerate(actions_list):
+    for index, action in enumerate(action_list):
         action_cost[index] = problem.getCostOfActions(action)
     min_index = min(action_cost, key=action_cost.get)
-    return actions_list[min_index]
+    return action_list[min_index]
 
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    import util
+    queue = util.Queue()
+    init_state = problem.getStartState()
+    action_list = []
+    queue.push((init_state, action_list))
+    visited_list = []
 
+    def breadthFirstSearchUtils(problem, visited_list, queue):
+        while queue.isEmpty() is not True:
+            state, action_list = queue.pop()
+            visited_list.append(state)
+
+            successors = problem.getSuccessors(state)
+            for (successor, direction, cost) in successors:
+                if (successor not in visited_list) and (successor not in (item for item in queue.list)):
+                    if problem.isGoalState(successor):
+                        return action_list + [direction]
+        
+                    new_action_list = action_list + [direction]
+                    queue.push((successor, new_action_list))
+
+    print("Start:", problem.getStartState())
+    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    print("Start's successors:", problem.getSuccessors(problem.getStartState())) # [(successor, action, stepCost), ...]
+
+    action_list = breadthFirstSearchUtils(problem, visited_list, queue)
+    return action_list
+
+    # print(action_list)
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    import util
+    frontier = util.PriorityQueue()
+    init_state = problem.getStartState()
+    action_list = []
+    frontier.push((init_state, action_list), 0)
+    visited_list = []
+
+    def uniformCostSearchUtils(problem, visited_list, frontier):
+        while frontier.isEmpty() is not True:
+            state, action_list = frontier.pop()
+            visited_list.append(state)
+
+            # if problem.isGoalState(state):
+            #     return action_list
+
+            # for item in frontier.heap:
+            #     print(item)
+
+            successors = problem.getSuccessors(state)
+            heap = frontier.heap # get heap tree
+
+            for (successor, direction, cost) in successors:
+                if (successor not in visited_list) and (successor not in (item[2][0] for item in heap)): # if the successor has yet to be in the frontier
+                    if problem.isGoalState(successor):
+                        return action_list + [direction]
+
+                    new_action_list = action_list + [direction]
+                    newPriority = problem.getCostOfActions(new_action_list)
+                    frontier.push((successor, new_action_list), newPriority)
+
+                elif (successor not in visited_list) and (successor in (item[2][0] for item in heap)): # if the successor has been in the frontier
+                    currentPriority = None
+                    for item in heap:
+                        if successor == item[2][0]:
+                            # print(item[2][0])
+                            # print(successor)
+                            currentPriority = problem.getCostOfActions(item[2][1])
+
+                    new_action_list = action_list + [direction]
+                    newPriority = problem.getCostOfActions(new_action_list)
+                    if newPriority < currentPriority:
+                        frontier.update((successor, new_action_list), newPriority)
+                    else:
+                        continue
+
+    print("Start:", problem.getStartState())
+    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    print("Start's successors:", problem.getSuccessors(problem.getStartState()))  # [(successor, action, stepCost), ...]
+
+    action_list = uniformCostSearchUtils(problem, visited_list, frontier)
+    return action_list
 
 def nullHeuristic(state, problem=None):
     """
