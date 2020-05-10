@@ -83,51 +83,30 @@ def tinyMazeSearch(problem):
 
 def depthFirstSearch(problem):
     import util
-
     stack = util.Stack()
     init_state = problem.getStartState()
     action_list = []
-    stack.push(init_state)
+    stack.push((init_state, action_list))
+    visited_list = []
 
-    visited = []
+    def depthFirstSearchUtils(problem, visited_list, stack):
+        while stack.isEmpty() is not True:
+            state, action_list = stack.pop()
+            visited_list.append(state)
 
-    def depthFirstSearchUtils(problem, action_list, visited_list, stack, state, direction, actions):
-        visited_list.append(state)
-        actions.append(direction)
-        if problem.isGoalState(state):
-            action_list.append([action for action in actions if action != ''])
-        else:
-            for successor, direction, cost in problem.getSuccessors(state):
-                if successor not in visited_list:
-                    depthFirstSearchUtils(problem, action_list, visited_list, stack, successor, direction, actions)
+            if problem.isGoalState(state):
+                return action_list
 
-        actions.pop()
-        visited_list.remove(state)
+            successors = problem.getSuccessors(state)
+            for (successor, direction, cost) in successors:
+                if (successor not in visited_list) and (successor not in (state for state in stack.list)):
+                    new_action_list = action_list + [direction]
+                    stack.push((successor, new_action_list))
 
-    """
-    Search the deepest nodes in the search tree first.
-
-    Your search algorithm needs to return a list of actions that reaches the
-    goal. Make sure to implement a graph search algorithm.
-
-    To get started, you might want to try some of these simple commands to
-    understand the search problem that is being passed in:
-
-
-    """
-    "*** YOUR CODE HERE ***"
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
-
-    depthFirstSearchUtils(problem, action_list, [], stack, init_state, "", [])
-
-    print(action_list)
-    action_cost = {}
-    for index, action in enumerate(action_list):
-        action_cost[index] = problem.getCostOfActions(action)
-    min_index = min(action_cost, key=action_cost.get)
-    return action_list[min_index]
+    if problem.isGoalState(init_state):
+        return []
+    else:
+        return depthFirstSearchUtils(problem, visited_list, stack)
 
 
 def breadthFirstSearch(problem):
@@ -139,11 +118,11 @@ def breadthFirstSearch(problem):
     action_list = []
     queue.push((init_state, action_list))
     visited_list = []
+    visited_list.append(init_state)
 
-    def breadthFirstSearchUtils(problem, visited_list, queue):
+    def depthFirstSearchUtils(problem, visited_list, queue):
         while queue.isEmpty() is not True:
             state, action_list = queue.pop()
-            visited_list.append(state)
 
             if problem.isGoalState(state):
                 return action_list
@@ -151,20 +130,14 @@ def breadthFirstSearch(problem):
             successors = problem.getSuccessors(state)
             for (successor, direction, cost) in successors:
                 if (successor not in visited_list) and (successor not in (state for state in queue.list)):
-                    if problem.isGoalState(state):
-                        return action_list + [direction]
-                    else:
-                        new_action_list = action_list + [direction]
-                        queue.push((successor, new_action_list))
-
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))  # [(successor, action, stepCost), ...]
+                    new_action_list = action_list + [direction]
+                    queue.push((successor, new_action_list))
+                    visited_list.append(successor)
 
     if problem.isGoalState(init_state):
         return []
     else:
-        return breadthFirstSearchUtils(problem, visited_list, queue)
+        return depthFirstSearchUtils(problem, visited_list, queue)
 
     # print(action_list)
 
