@@ -42,7 +42,9 @@ Medium Maze
 python pacman.py -l mediumMaze -p SearchAgent
 ```
 Big Maze
+```
 python pacman.py -l bigMaze -z .5 -p SearchAgent
+```
 
 ### BFS
 Tiny Maze
@@ -54,7 +56,9 @@ Medium Maze
 python pacman.py -l mediumMaze -p SearchAgent -a fn=bfs
 ```
 Big Maze
+```
 python pacman.py -l bigMaze -p SearchAgent -a fn=bfs -z .5
+```
 
 ### UCS
 Medium Maze
@@ -70,7 +74,9 @@ Medium Scary Maze
 python pacman.py -l mediumScaryMaze -p StayWestSearchAgent
 ```
 ### A*S
+```
 python pacman.py -l bigMaze -z .5 -p SearchAgent -a fn=astar,heuristic=manhattanHeuristic
+```
 
 
 
