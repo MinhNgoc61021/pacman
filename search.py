@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -143,13 +143,13 @@ def breadthFirstSearch(problem):
                 if (successor not in visited_list) and (successor not in (item for item in queue.list)):
                     if problem.isGoalState(successor):
                         return action_list + [direction]
-        
+
                     new_action_list = action_list + [direction]
                     queue.push((successor, new_action_list))
 
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState())) # [(successor, action, stepCost), ...]
+    # print("Start:", problem.getStartState())
+    # print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    # print("Start's successors:", problem.getSuccessors(problem.getStartState())) # [(successor, action, stepCost), ...]
 
     action_list = breadthFirstSearchUtils(problem, visited_list, queue)
     return action_list
@@ -216,12 +216,35 @@ def nullHeuristic(state, problem=None):
     A heuristic function estimates the cost from the current state to the nearest
     goal in the provided SearchProblem.  This heuristic is trivial.
     """
-    return 0
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    import util
+    from searchAgents import manhattanHeuristic
+    frontier = util.PriorityQueue()
+    init_state = problem.getStartState()
+    action_list = []
+    frontier.push((init_state, action_list), 0)
+    visited_list = []
+
+    def aStarSearchUtils(problem, visited_list, frontier):
+        while frontier.isEmpty() is not True:
+            state, action_list = frontier.pop()
+            if problem.isGoalState(state): return action_list
+            visited_list.append(state)
+            for (successor, direction, cost) in problem.getSuccessors(state):
+                if (successor not in visited_list) and (successor not in frontier.heap):
+                    new_action_list = action_list + [direction]
+                    frontier.update((successor, new_action_list), cost+manhattanHeuristic(successor, problem))
+
+
+    print("Start:", problem.getStartState())
+    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    print("Start's successors:", problem.getSuccessors(problem.getStartState()))  # [(successor, action, stepCost), ...]
+
+    action_list = aStarSearchUtils(problem, visited_list, frontier)
+    return action_list
 
 
 # Abbreviations

@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -288,6 +288,10 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
+        self.goal = (1, 1)
+
+    def setGoal(self, goal):
+        self.goal = goal
 
     def getStartState(self):
         """
@@ -295,14 +299,15 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # must be tuple so that positions of 4 corners are unchangeable
+        return self.startingPosition, (self.corners[0], self.corners[1], self.corners[2], self.corners[3])
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return len(state[1]) == 0
 
     def getSuccessors(self, state):
         """
@@ -316,7 +321,10 @@ class CornersProblem(search.SearchProblem):
         """
 
         successors = []
+        print('four corners', state[1])
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
+            print('looping through all directions', action)
+
             # Add a successor state to the successor list if the action is legal
             # Here's a code snippet for figuring out whether a new position hits a wall:
             #   x,y = currentPosition
@@ -325,7 +333,30 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
+            x, y = state[0]
+            print('current position', x, y)
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            print('next position', nextx, nexty)
 
+            hitsWall = self.walls[nextx][nexty]
+            if hitsWall is not True:
+                print('does not hit wall')
+                new_position = (nextx, nexty)
+                remaining_corners = state[1]
+
+                # check to see if the new_position is 1 of the corners
+                # if it is, then remove it out of the state
+                if new_position in remaining_corners:
+                    print('found a corner, now remove it from the state')
+                    temp = list(remaining_corners)
+                    temp.remove(new_position)
+                    remaining_corners = tuple(temp)
+                # append new state = (new_position, (positions of the rest of the corners))
+                new_state = (new_position, remaining_corners)
+                action_cost = 1
+                print('new state', new_state, action)
+                successors.append((new_state, action, action_cost))
         self._expanded += 1 # DO NOT CHANGE
         return successors
 
@@ -360,7 +391,42 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    total_cost = 0
+    current_position = state[0]
+    remaining_corners = corners
+
+    while len(state[1] != 0):
+        # Firstly, we find the nearest corner and calculate the cost to it
+        closest_corner = closestCorner(current_position, remaining_corners)
+        total_cost += euclideanHeuristic(current_position, closest_corner)  # Add the cost to the total cost
+
+        # Reassign position to the calculated corner
+        current_position = closest_corner
+        # remove the calculated corner
+        temp = list(remaining_corners)
+        temp.remove(closest_corner)
+        remaining_corners = tuple(temp)
+
+    return total_cost
+
+
+
+def closestCorner(current_position, corners):
+    if len(corners) == 0:
+        return
+
+    closest_corner = corners[0]
+
+    shortest_path = euclideanHeuristic(current_position, closest_corner)
+    print('its fine')
+    for corner in corners[1:]:
+        path_cost = euclideanHeuristic(current_position, corner)
+        if path_cost < shortest_path:
+            closest_corner = corner
+            shortest_path = path_cost
+
+    return closest_corner
+
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
