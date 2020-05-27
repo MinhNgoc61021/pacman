@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-#
+# 
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -25,6 +25,7 @@ s = Directions.SOUTH
 w = Directions.WEST
 e = Directions.EAST
 n = Directions.NORTH
+
 
 class SearchProblem:
     """
@@ -77,50 +78,35 @@ def tinyMazeSearch(problem):
     from game import Directions
     s = Directions.SOUTH
     w = Directions.WEST
-    return  [s, s, w, s, w, w, s, w]
+    return [s, s, w, s, w, w, s, w]
 
 
 def depthFirstSearch(problem):
     import util
-
-    def depthFirstSearchUtils(problem, action_list, visited_list, stack, state, direction, actions):
-        visited_list.append(state)
-        actions.append(direction)
-        if problem.isGoalState(state):
-            action_list.append([action for action in actions if action != ''])
-        else:
-            for successor, direction, cost in problem.getSuccessors(state):
-                if successor not in visited_list:
-                    depthFirstSearchUtils(problem, action_list, visited_list, stack, successor, direction, actions)
-
-        actions.pop()
-        visited_list.remove(state)
-    """
-    Search the deepest nodes in the search tree first.
-
-    Your search algorithm needs to return a list of actions that reaches the
-    goal. Make sure to implement a graph search algorithm.
-
-    To get started, you might want to try some of these simple commands to
-    understand the search problem that is being passed in:
-
-    
-    """
-    "*** YOUR CODE HERE ***"
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     stack = util.Stack()
     init_state = problem.getStartState()
     action_list = []
+    stack.push((init_state, action_list))
+    visited_list = []
 
-    depthFirstSearchUtils(problem, action_list, [], stack, init_state, "", [])
+    def depthFirstSearchUtils(problem, visited_list, stack):
+        while stack.isEmpty() is not True:
+            state, action_list = stack.pop()
+            visited_list.append(state)
 
-    action_cost = {}
-    for index, action in enumerate(action_list):
-        action_cost[index] = problem.getCostOfActions(action)
-    min_index = min(action_cost, key=action_cost.get)
-    return action_list[min_index]
+            if problem.isGoalState(state):
+                return action_list
+
+            successors = problem.getSuccessors(state)
+            for (successor, direction, cost) in successors:
+                if (successor not in visited_list) and (successor not in (state for state in stack.list)):
+                    new_action_list = action_list + [direction]
+                    stack.push((successor, new_action_list))
+
+    if problem.isGoalState(init_state):
+        return []
+    else:
+        return depthFirstSearchUtils(problem, visited_list, stack)
 
 
 def breadthFirstSearch(problem):
@@ -132,119 +118,129 @@ def breadthFirstSearch(problem):
     action_list = []
     queue.push((init_state, action_list))
     visited_list = []
+    visited_list.append(init_state)
 
     def breadthFirstSearchUtils(problem, visited_list, queue):
         while queue.isEmpty() is not True:
             state, action_list = queue.pop()
-            visited_list.append(state)
+
+            if problem.isGoalState(state):
+                return action_list
 
             successors = problem.getSuccessors(state)
             for (successor, direction, cost) in successors:
-                if (successor not in visited_list) and (successor not in (item for item in queue.list)):
-                    if problem.isGoalState(successor):
-                        return action_list + [direction]
-
+                if (successor not in visited_list) and (successor not in (state for state in queue.list)):
                     new_action_list = action_list + [direction]
                     queue.push((successor, new_action_list))
+                    visited_list.append(successor)
 
-    # print("Start:", problem.getStartState())
-    # print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    # print("Start's successors:", problem.getSuccessors(problem.getStartState())) # [(successor, action, stepCost), ...]
-
-    action_list = breadthFirstSearchUtils(problem, visited_list, queue)
-    return action_list
+    if problem.isGoalState(init_state):
+        return []
+    else:
+        return breadthFirstSearchUtils(problem, visited_list, queue)
 
     # print(action_list)
+
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    import util
-    frontier = util.PriorityQueue()
-    init_state = problem.getStartState()
-    action_list = []
-    frontier.push((init_state, action_list), 0)
-    visited_list = []
+    util.raiseNotDefined()
 
-    def uniformCostSearchUtils(problem, visited_list, frontier):
-        while frontier.isEmpty() is not True:
-            state, action_list = frontier.pop()
-            visited_list.append(state)
-
-            # if problem.isGoalState(state):
-            #     return action_list
-
-            # for item in frontier.heap:
-            #     print(item)
-
-            successors = problem.getSuccessors(state)
-            heap = frontier.heap # get heap tree
-
-            for (successor, direction, cost) in successors:
-                if (successor not in visited_list) and (successor not in (item[2][0] for item in heap)): # if the successor has yet to be in the frontier
-                    if problem.isGoalState(successor):
-                        return action_list + [direction]
-
-                    new_action_list = action_list + [direction]
-                    newPriority = problem.getCostOfActions(new_action_list)
-                    frontier.push((successor, new_action_list), newPriority)
-
-                elif (successor not in visited_list) and (successor in (item[2][0] for item in heap)): # if the successor has been in the frontier
-                    currentPriority = None
-                    for item in heap:
-                        if successor == item[2][0]:
-                            # print(item[2][0])
-                            # print(successor)
-                            currentPriority = problem.getCostOfActions(item[2][1])
-
-                    new_action_list = action_list + [direction]
-                    newPriority = problem.getCostOfActions(new_action_list)
-                    if newPriority < currentPriority:
-                        frontier.update((successor, new_action_list), newPriority)
-                    else:
-                        continue
-
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))  # [(successor, action, stepCost), ...]
-
-    action_list = uniformCostSearchUtils(problem, visited_list, frontier)
-    return action_list
 
 def nullHeuristic(state, problem=None):
     """
     A heuristic function estimates the cost from the current state to the nearest
     goal in the provided SearchProblem.  This heuristic is trivial.
     """
+    return 0
+
 
 def aStarSearch(problem, heuristic=nullHeuristic):
+    class Node:
+        def __init__(self, parent, position, action, cost, g, h, f):
+            self.parent = parent
+            self.position = position
+            self.action = action
+            self.cost = cost
+
+            self.g = g
+            self.h = h
+            self.f = f
+
+        def __str__(self):
+            return self.action
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    import util
-    from searchAgents import manhattanHeuristic
-    frontier = util.PriorityQueue()
-    init_state = problem.getStartState()
-    action_list = []
-    frontier.push((init_state, action_list), 0)
-    visited_list = []
+    def in_close_list(item, list):
+        for l in list:
+            if item.position == l.position:
+                return True
+        return False
 
-    def aStarSearchUtils(problem, visited_list, frontier):
-        while frontier.isEmpty() is not True:
-            state, action_list = frontier.pop()
-            if problem.isGoalState(state): return action_list
-            visited_list.append(state)
-            for (successor, direction, cost) in problem.getSuccessors(state):
-                if (successor not in visited_list) and (successor not in frontier.heap):
-                    new_action_list = action_list + [direction]
-                    frontier.update((successor, new_action_list), cost+manhattanHeuristic(successor, problem))
+    def in_open_list(item, list):
+        for l in list:
+            if item.position == l.position and l.f <= item.f:
+                return True
+        return False
+
+    init_state = Node(None, problem.getStartState(), None, 0, 0, 0, 0)  # parent, position, action, g, h, f
+    open_list = []
+    close_list = []
+
+    open_list.append(init_state)
+    while len(open_list) > 0:
+        #print("open_list f:", ["g{}+h{}=f{}/{}/{}".format(node.g, node.h, node.f, node.action, node.position) for node in open_list])
+        current_node = open_list[0]
+        current_index = 0
+        ###Tìm node có f bé nhất###
+        for index, node in enumerate(open_list):
+            if node.f < current_node.f:
+                current_node = node
+                current_index = index
+        #print("current_index:", current_index, "//smallest f:","g{}+h{}=f{}/{}/{}".format(current_node.g,current_node.h,current_node.f,current_node.action,current_node.position))
+        #print("current(min) node:", "g{}+h{}=f{}/{}/{}".format(current_node.g,current_node.h,current_node.f,current_node.action,current_node.position))
+
+        ###Pop nốt đó khỏi open_list và thêm vào close_list###
+        open_list.pop(current_index)
+        close_list.append(current_node)
+
+        #print("close_list f:", ["g{}+h{}=f{}/{}/{}".format(node.g,node.h,node.f,node.action,node.position) for node in close_list])
+
+        ###Nếu node đang xét là goal thì dừng và lần ngược lại action đến start node###
+        if problem.isGoalState(current_node.position):
+            action_list = []
+            current = current_node
+            while current is not None:
+                action_list.append(current.action)
+                #print("acion: ", action_list)
+                #print("g{}+h{}=f{}/{}/{}".format(current.g, current.h, current.f, current.action, current.position))
+                current = current.parent
+            return action_list[::-1][1:] #xóa start node có action là None
+
+        ###Lấy các children của node###
+        children = []
+        for child in problem.getSuccessors(current_node.position):
+            children.append(Node(parent=current_node,
+                                 position=child[0],
+                                 cost=child[2],
+                                 action=child[1],
+                                 g=0, h=0, f=0))
+        #print("children:", ["g{}+h{}=f{}/{}/{}".format(child.g,child.h,child.f,child.action,child.position) for child in children])
 
 
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))  # [(successor, action, stepCost), ...]
-
-    action_list = aStarSearchUtils(problem, visited_list, frontier)
-    return action_list
+        #print("CHILDREN LOOP")
+        for index, child in enumerate(children):
+            ###Nếu node không có trong close_list###
+            if not in_close_list(child, close_list):
+                child.g = current_node.g + child.cost
+                child.h = heuristic(child.position, problem)
+                child.f = child.g + child.h
+                #print("update child no.{}: g{}+h{}=f{}/{}/{}".format(index, child.g, child.h, child.f, child.action, child.position))
+                ###Nếu không thỏa mãn node có trong open_list và tồn tại node có f nhỏ hơn child đang xét###
+                if not in_open_list(child, open_list):
+                    #print("append child no.{} to open_list".format(index))
+                    open_list.append(child)
 
 
 # Abbreviations

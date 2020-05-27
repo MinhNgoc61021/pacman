@@ -241,7 +241,7 @@ class StayEastSearchAgent(SearchAgent):
 class StayWestSearchAgent(SearchAgent):
     """
     An agent for position search with a cost function that penalizes being in
-    positions on the East side of the board.
+    positions on the East simanhattanHeuristicde of the board.
 
     The cost function for stepping into a position (x,y) is 2^x.
     """
