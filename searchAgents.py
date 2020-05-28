@@ -418,11 +418,13 @@ class FoodSearchProblem:
             cost += 1
         return cost
 
+
 class AStarFoodSearchAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
     def __init__(self):
         self.searchFunction = lambda prob: search.aStarSearch(prob, foodHeuristic)
         self.searchType = FoodSearchProblem
+
 
 def foodHeuristic(state, problem):
     """
@@ -452,9 +454,57 @@ def foodHeuristic(state, problem):
     Subsequent calls to this heuristic can access
     problem.heuristicInfo['wallCount']
     """
+    #()
+    # o
+    # l
+    # .
+    # >
+    # p
+    # :
+    # -
+    # import math
+    # def euclidian(p1, p2):
+    #     return math.sqrt((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2)
+    #
+    # def NextFood(position, foodList):
+    #     nextFood = foodList[0]
+    #     minCost = mazeDistance(position, nextFood, problem.startingGameState)
+    #     for food in foodList[1:]:
+    #         cost = mazeDistance(position, food, problem.startingGameState)
+    #         if minCost > cost:
+    #             minCost = cost
+    #             nextFood = food
+    #
+    #     return nextFood
+    #
     position, foodGrid = state
-    "*** YOUR CODE HERE ***"
-    return 0
+    #
+    # "*** YOUR CODE HERE ***"
+    foodList = foodGrid.asList()
+    if len(foodList) == 0:
+        return 0
+    #
+    # nextFood = NextFood(position, foodList)
+    # distances = []
+    # for food in foodList:
+    #     x = mazeDistance(position, food,problem.startingGameState)
+    #     distances.append(util.manhattanDistance(position, food))
+    #
+    # sorted_distances = sorted(distances)
+    # sum = 0
+    #
+    # c = min(15,len(foodList))
+    # for i in range(c):
+    #     sum+=sorted_distances[i]
+    # return util.manhattanDistance(position, nextFood)
+    heuristic = 0
+    for food in foodList:
+        distance = mazeDistance(position, food, problem.startingGameState)
+        #distance = util.manhattanDistance(position, food)
+        if distance > heuristic:
+            heuristic = distance
+    return heuristic
+
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -483,9 +533,33 @@ class ClosestDotSearchAgent(SearchAgent):
         food = gameState.getFood()
         walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState)
-
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        import util
+        queue = util.Queue()
+        init_state = problem.getStartState()
+        action_list = []
+        queue.push((startPosition, action_list))
+        visited_list = []
+        visited_list.append(init_state)
+
+        def breadthFirstSearchUtils(problem, visited_list, queue):
+            while queue.isEmpty() is not True:
+                state, action_list = queue.pop()
+
+                if problem.isGoalState(state):
+                    return action_list
+
+                successors = problem.getSuccessors(state)
+                for (successor, direction, cost) in successors:
+                    if (successor not in visited_list) and (successor not in (state for state in queue.list)):
+                        new_action_list = action_list + [direction]
+                        queue.push((successor, new_action_list))
+                        visited_list.append(successor)
+
+        if problem.isGoalState(init_state):
+            return []
+        else:
+            return breadthFirstSearchUtils(problem, visited_list, queue)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -521,7 +595,10 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        foodPositions = self.food.asList()
+        # The goal is if pacman's current position is a location where there is
+        # a piece of food.
+        return (x, y) in foodPositions
 
 def mazeDistance(point1, point2, gameState):
     """
