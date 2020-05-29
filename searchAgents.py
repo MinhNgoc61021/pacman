@@ -383,16 +383,17 @@ def cornersHeuristic(state, problem):
     "*** YOUR CODE HERE ***"
     total_cost = 0
     remaining_corners = state[1]
+
     while len(remaining_corners) != 0:
-        distanceCorner = []
+        distance_to_corners = []
         for corner in remaining_corners:
             distance = util.manhattanDistance(current_position, corner)
-            distanceCorner.append((distance, corner))
-        currentDistance, currentCorner = min(distanceCorner)
-        total_cost += currentDistance
-        current_position = currentCorner
+            distance_to_corners.append((distance, corner))
+        min_distance, closest_corner = min(distance_to_corners)
+        total_cost += min_distance
+        current_position = closest_corner
         temp = list(remaining_corners)
-        temp.remove(currentCorner)
+        temp.remove(closest_corner)
         remaining_corners = tuple(temp)
 
     return total_cost
