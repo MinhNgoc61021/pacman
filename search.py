@@ -26,6 +26,7 @@ w = Directions.WEST
 e = Directions.EAST
 n = Directions.NORTH
 
+
 class SearchProblem:
     """
     This class outlines the structure of a search problem, but doesn't implement
@@ -77,7 +78,7 @@ def tinyMazeSearch(problem):
     from game import Directions
     s = Directions.SOUTH
     w = Directions.WEST
-    return  [s, s, w, s, w, w, s, w]
+    return [s, s, w, s, w, w, s, w]
 
 
 def depthFirstSearch(problem):
@@ -140,6 +141,7 @@ def breadthFirstSearch(problem):
 
     # print(action_list)
 
+
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
@@ -162,15 +164,17 @@ def uniformCostSearch(problem):
             #     print(item)
 
             successors = problem.getSuccessors(state)
-            heap = frontier.heap # get heap tree
+            heap = frontier.heap  # get heap tree
 
             for (successor, direction, cost) in successors:
-                if (successor not in visited_list) and (successor not in (item[2][0] for item in heap)): # if the successor has yet to be in the frontier
+                if (successor not in visited_list) and (successor not in (item[2][0] for item in
+                                                                          heap)):  # if the successor has yet to be in the frontier
                     new_action_list = action_list + [direction]
                     newPriority = problem.getCostOfActions(new_action_list)
                     frontier.push((successor, new_action_list), newPriority)
 
-                elif (successor not in visited_list) and (successor in (item[2][0] for item in heap)): # if the successor has been in the frontier
+                elif (successor not in visited_list) and (
+                        successor in (item[2][0] for item in heap)):  # if the successor has been in the frontier
                     currentPriority = None
                     for item in heap:
                         if successor == item[2][0]:
@@ -181,16 +185,16 @@ def uniformCostSearch(problem):
                     new_action_list = action_list + [direction]
                     newPriority = problem.getCostOfActions(new_action_list)
 
-                    if newPriority < currentPriority: # update the successor if the new path cost is smaller than the current path cost
+                    if newPriority < currentPriority:  # update the successor if the new path cost is smaller than the current path cost
                         frontier.update((successor, new_action_list), newPriority)
                     else:
                         continue
-
 
     if problem.isGoalState(init_state):
         return []
     else:
         return uniformCostSearchUtils(problem, visited_list, frontier)
+
 
 def nullHeuristic(state, problem=None):
     """
@@ -199,9 +203,11 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
+
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
+
     # import util
     # from searchAgents import manhattanHeuristic
     # frontier = util.PriorityQueue()
@@ -316,6 +322,8 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                 if not in_open_list(child, open_list):
                     # print("append child no.{} to open_list".format(index))
                     open_list.append(child)
+
+
 # Abbreviations
 bfs = breadthFirstSearch
 dfs = depthFirstSearch
