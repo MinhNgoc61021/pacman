@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -122,7 +122,7 @@ def breadthFirstSearch(problem):
     def breadthFirstSearchUtils(problem, visited_list, queue):
         while queue.isEmpty() is not True:
             state, action_list = queue.pop()
-            
+
             if problem.isGoalState(state):
                 return action_list
 
@@ -180,7 +180,7 @@ def uniformCostSearch(problem):
 
                     new_action_list = action_list + [direction]
                     newPriority = problem.getCostOfActions(new_action_list)
-                    
+
                     if newPriority < currentPriority: # update the successor if the new path cost is smaller than the current path cost
                         frontier.update((successor, new_action_list), newPriority)
                     else:
@@ -200,6 +200,37 @@ def nullHeuristic(state, problem=None):
     return 0
 
 def aStarSearch(problem, heuristic=nullHeuristic):
+    """Search the node that has the lowest combined cost and heuristic first."""
+    "*** YOUR CODE HERE ***"
+    # import util
+    # from searchAgents import manhattanHeuristic
+    # frontier = util.PriorityQueue()
+    # init_state = problem.getStartState()
+    # action_list = []
+    # frontier.push((init_state, action_list), 0)
+    # visited_list = []
+    #
+    # def aStarSearchUtils(problem, visited_list, frontier):
+    #     while frontier.isEmpty() is not True:
+    #         state, action_list = frontier.pop()
+    #         visited_list.append(state)
+    #
+    #         if problem.isGoalState(state):
+    #             return action_list
+    #
+    #         for (successor, direction, cost) in problem.getSuccessors(state):
+    #             if successor not in visited_list:
+    #                 new_action_list = action_list + [direction]
+    #                 newPriority = problem.getCostOfActions(new_action_list)
+    #                 frontier.update((successor, new_action_list), cost + manhattanHeuristic(successor, problem))
+    #             else:
+    #                 continue
+    #
+    # if problem.isGoalState(init_state):
+    #     return []
+    # else:
+    #     return aStarSearchUtils(problem, visited_list, frontier)
+    #
     class Node:
         def __init__(self, parent, position, action, cost, g, h, f):
             self.parent = parent
@@ -213,8 +244,10 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 
         def __str__(self):
             return self.action
+
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
+
     def in_close_list(item, list):
         for l in list:
             if item.position == l.position:
@@ -233,7 +266,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 
     open_list.append(init_state)
     while len(open_list) > 0:
-        #print("open_list f:", ["g{}+h{}=f{}/{}/{}".format(node.g, node.h, node.f, node.action, node.position) for node in open_list])
+        # print("open_list f:", ["g{}+h{}=f{}/{}/{}".format(node.g, node.h, node.f, node.action, node.position) for node in open_list])
         current_node = open_list[0]
         current_index = 0
         ###Tìm node có f bé nhất###
@@ -241,14 +274,14 @@ def aStarSearch(problem, heuristic=nullHeuristic):
             if node.f < current_node.f:
                 current_node = node
                 current_index = index
-        #print("current_index:", current_index, "//smallest f:","g{}+h{}=f{}/{}/{}".format(current_node.g,current_node.h,current_node.f,current_node.action,current_node.position))
-        #print("current(min) node:", "g{}+h{}=f{}/{}/{}".format(current_node.g,current_node.h,current_node.f,current_node.action,current_node.position))
+        # print("current_index:", current_index, "//smallest f:","g{}+h{}=f{}/{}/{}".format(current_node.g,current_node.h,current_node.f,current_node.action,current_node.position))
+        # print("current(min) node:", "g{}+h{}=f{}/{}/{}".format(current_node.g,current_node.h,current_node.f,current_node.action,current_node.position))
 
         ###Pop nốt đó khỏi open_list và thêm vào close_list###
         open_list.pop(current_index)
         close_list.append(current_node)
 
-        #print("close_list f:", ["g{}+h{}=f{}/{}/{}".format(node.g,node.h,node.f,node.action,node.position) for node in close_list])
+        # print("close_list f:", ["g{}+h{}=f{}/{}/{}".format(node.g,node.h,node.f,node.action,node.position) for node in close_list])
 
         ###Nếu node đang xét là goal thì dừng và lần ngược lại action đến start node###
         if problem.isGoalState(current_node.position):
@@ -256,10 +289,10 @@ def aStarSearch(problem, heuristic=nullHeuristic):
             current = current_node
             while current is not None:
                 action_list.append(current.action)
-                #print("acion: ", action_list)
-                #print("g{}+h{}=f{}/{}/{}".format(current.g, current.h, current.f, current.action, current.position))
+                # print("acion: ", action_list)
+                # print("g{}+h{}=f{}/{}/{}".format(current.g, current.h, current.f, current.action, current.position))
                 current = current.parent
-            return action_list[::-1][1:] #xóa start node có action là None
+            return action_list[::-1][1:]  # xóa start node có action là None
 
         ###Lấy các children của node###
         children = []
@@ -269,23 +302,20 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                                  cost=child[2],
                                  action=child[1],
                                  g=0, h=0, f=0))
-        #print("children:", ["g{}+h{}=f{}/{}/{}".format(child.g,child.h,child.f,child.action,child.position) for child in children])
+        # print("children:", ["g{}+h{}=f{}/{}/{}".format(child.g,child.h,child.f,child.action,child.position) for child in children])
 
-
-        #print("CHILDREN LOOP")
+        # print("CHILDREN LOOP")
         for index, child in enumerate(children):
             ###Nếu node không có trong close_list###
             if not in_close_list(child, close_list):
                 child.g = current_node.g + child.cost
                 child.h = heuristic(child.position, problem)
                 child.f = child.g + child.h
-                #print("update child no.{}: g{}+h{}=f{}/{}/{}".format(index, child.g, child.h, child.f, child.action, child.position))
+                # print("update child no.{}: g{}+h{}=f{}/{}/{}".format(index, child.g, child.h, child.f, child.action, child.position))
                 ###Nếu không thỏa mãn node có trong open_list và tồn tại node có f nhỏ hơn child đang xét###
                 if not in_open_list(child, open_list):
-                    #print("append child no.{} to open_list".format(index))
+                    # print("append child no.{} to open_list".format(index))
                     open_list.append(child)
-
-
 # Abbreviations
 bfs = breadthFirstSearch
 dfs = depthFirstSearch
