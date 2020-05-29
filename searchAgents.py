@@ -488,53 +488,15 @@ def foodHeuristic(state, problem):
     Subsequent calls to this heuristic can access
     problem.heuristicInfo['wallCount']
     """
-    # ()
-    # o
-    # l
-    # .
-    # >
-    # p
-    # :
-    # -
-    # import math
-    # def euclidian(p1, p2):
-    #     return math.sqrt((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2)
-    #
-    # def NextFood(position, foodList):
-    #     nextFood = foodList[0]
-    #     minCost = mazeDistance(position, nextFood, problem.startingGameState)
-    #     for food in foodList[1:]:
-    #         cost = mazeDistance(position, food, problem.startingGameState)
-    #         if minCost > cost:
-    #             minCost = cost
-    #             nextFood = food
-    #
-    #     return nextFood
-    #
-    position, foodGrid = state
+    pacmanPosition, foodGrid = state
     #
     # "*** YOUR CODE HERE ***"
     foodList = foodGrid.asList()
     if len(foodList) == 0:
         return 0
-    #
-    # nextFood = NextFood(position, foodList)
-    # distances = []
-    # for food in foodList:
-    #     x = mazeDistance(position, food,problem.startingGameState)
-    #     distances.append(util.manhattanDistance(position, food))
-    #
-    # sorted_distances = sorted(distances)
-    # sum = 0
-    #
-    # c = min(15,len(foodList))
-    # for i in range(c):
-    #     sum+=sorted_distances[i]
-    # return util.manhattanDistance(position, nextFood)
     heuristic = 0
     for food in foodList:
-        distance = mazeDistance(position, food, problem.startingGameState)
-        # distance = util.manhattanDistance(position, food)
+        distance = mazeDistance(pacmanPosition, food, problem.startingGameState)
         if distance > heuristic:
             heuristic = distance
     return heuristic
@@ -629,8 +591,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
 
         "*** YOUR CODE HERE ***"
         foodPositions = self.food.asList()
-        # The goal is if pacman's current position is a location where there is
-        # a piece of food.
+        #chỉ cần vị trí đang xét là vị trí của 1 food trong list các food
         return (x, y) in foodPositions
 
 
